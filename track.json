@@ -1,0 +1,6 @@
+{
+  "segments": [
+    { "length": 10, "width": 5, "height": 1, "position": {"x": 0, "y": 0.5, "z": 0}, "rotationY": 0 },
+    { "length": 10, "width": 5, "height": 1, "position": {"x": 10, "y": 0.5, "z": 0}, "rotationY": Math.PI / 4 }
+  ]
+}

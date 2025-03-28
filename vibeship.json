@@ -1,0 +1,7 @@
+{
+  "dimensions": { "x": 1, "y": 0.5, "z": 2 },
+  "handling": {
+    "acceleration": 0.1,
+    "turnSpeed": 0.05
+  }
+}
