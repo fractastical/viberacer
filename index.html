@@ -327,91 +327,155 @@
             }
             
             // Create 3D meshes for the track
-            function createTrackMeshes() {
-                // Clear any existing track meshes
-                trackMeshes.forEach(mesh => scene.remove(mesh));
-                checkpointMeshes.forEach(mesh => scene.remove(mesh));
-                trackMeshes = [];
-                checkpointMeshes = [];
-                
-                if (!currentTrack) {
-                    console.error("Cannot create track meshes - currentTrack is undefined");
-                    return;
-                }
-                
-                // Create boundaries
-                const wallMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x444444,
-                    roughness: 0.7,
-                    metalness: 0.3
-                });
-                
-                currentTrack.boundaries.forEach(wall => {
-                    const wallGeometry = (wall.width > wall.depth) 
-                        ? new THREE.BoxGeometry(wall.width, wall.height, wall.depth)
-                        : new THREE.BoxGeometry(wall.width, wall.height, wall.depth);
-                    
-                    const wallMesh = new THREE.Mesh(wallGeometry, wallMaterial);
-                    wallMesh.position.set(wall.x, wall.height / 2, wall.z);
-                    wallMesh.castShadow = true;
-                    wallMesh.receiveShadow = true;
-                    
-                    scene.add(wallMesh);
-                    trackMeshes.push(wallMesh);
-                    
-                    // Add wall data to the mesh for collision detection
-                    wallMesh.userData = {
-                        isWall: true,
-                        width: wall.width,
-                        height: wall.height,
-                        depth: wall.depth
-                    };
-                });
-                
-                // Create checkpoints
-                currentTrack.checkpoints.forEach((checkpoint, index) => {
-                    const checkpointGeometry = (checkpoint.width > checkpoint.height)
-                        ? new THREE.BoxGeometry(checkpoint.width, 0.1, checkpoint.height)
-                        : new THREE.BoxGeometry(checkpoint.width, 0.1, checkpoint.height);
-                    
-                    const checkpointMaterial = new THREE.MeshBasicMaterial({ 
-                        color: checkpoint.isStart ? 0x4CAF50 : 0x2196F3,
-                        transparent: true,
-                        opacity: 0.5
-                    });
-                    
-                    const checkpointMesh = new THREE.Mesh(checkpointGeometry, checkpointMaterial);
-                    checkpointMesh.position.set(checkpoint.x, 0.05, checkpoint.z);
-                    checkpointMesh.rotation.x = Math.PI / 2;
-                    
-                    scene.add(checkpointMesh);
-                    checkpointMeshes.push(checkpointMesh);
-                    
-                    // Add checkpoint data to the mesh for collision detection
-                    checkpointMesh.userData = {
-                        isCheckpoint: true,
-                        isStart: checkpoint.isStart,
-                        checkpointIndex: index,
-                        width: checkpoint.width,
-                        height: checkpoint.height
-                    };
-                });
-                
-                // Create track surface - racing area
-                const trackGeometry = new THREE.PlaneGeometry(120, 120);
-                const trackMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x333366,
-                    roughness: 0.9,
-                    metalness: 0.1
-                });
-                const trackSurface = new THREE.Mesh(trackGeometry, trackMaterial);
-                trackSurface.rotation.x = -Math.PI / 2;
-                trackSurface.position.y = 0.01;
-                trackSurface.receiveShadow = true;
-                scene.add(trackSurface);
-                trackMeshes.push(trackSurface);
-            }
-            
+// Create checkpoints
+// Create checkpoints
+function createCheckpoints(track) {
+    const checkpointMeshes = [];
+    
+    track.checkpoints.forEach((checkpoint, index) => {
+        // Make checkpoints perpendicular to the racing path
+        // For a circuit track, we need to orient them correctly based on position
+        
+        // Determine orientation - vertical or horizontal
+        // This is the opposite of the current direction to make them perpendicular
+        const isHorizontal = checkpoint.height > checkpoint.width; // Reversed from before
+        
+        // Make wider and thinner
+        const width = 30; // Width of the checkpoint gate
+        const height = 0.5; // Thickness of the beam
+        
+        // Create checkpoint geometry based on orientation
+        const checkpointGeometry = isHorizontal 
+            ? new THREE.BoxGeometry(width, 0.02, height) 
+            : new THREE.BoxGeometry(height, 0.02, width);
+        
+        // Different colors for start vs regular checkpoints
+        const checkpointMaterial = new THREE.MeshBasicMaterial({ 
+            color: checkpoint.isStart ? 0x4CAF50 : 0x2196F3,
+            transparent: true,
+            opacity: 0.3 // More transparent
+        });
+        
+        const checkpointMesh = new THREE.Mesh(checkpointGeometry, checkpointMaterial);
+        checkpointMesh.position.set(checkpoint.x, 0.05, checkpoint.z);
+        
+        // Add light beams at the edges
+        if (isHorizontal) {
+            // Add vertical light beams at the ends of horizontal checkpoints
+            addCheckpointBeam(checkpointMesh, width/2, 0, 0, 3, checkpoint.isStart ? 0x4CAF50 : 0x2196F3);
+            addCheckpointBeam(checkpointMesh, -width/2, 0, 0, 3, checkpoint.isStart ? 0x4CAF50 : 0x2196F3);
+        } else {
+            // Add vertical light beams at the ends of vertical checkpoints
+            addCheckpointBeam(checkpointMesh, 0, 0, width/2, 3, checkpoint.isStart ? 0x4CAF50 : 0x2196F3);
+            addCheckpointBeam(checkpointMesh, 0, 0, -width/2, 3, checkpoint.isStart ? 0x4CAF50 : 0x2196F3);
+        }
+        
+        // Add to scene
+        scene.add(checkpointMesh);
+        checkpointMeshes.push(checkpointMesh);
+        
+        // Add checkpoint data to the mesh for collision detection
+        checkpointMesh.userData = {
+            isCheckpoint: true,
+            isStart: checkpoint.isStart,
+            checkpointIndex: index,
+            width: isHorizontal ? width : height,
+            height: isHorizontal ? height : width
+        };
+    });
+    
+    return checkpointMeshes;
+}
+
+// Helper function to add light beams at the edges of checkpoints
+function addCheckpointBeam(parentMesh, x, y, z, height, color) {
+    const beamGeometry = new THREE.CylinderGeometry(0.15, 0.15, height, 8);
+    const beamMaterial = new THREE.MeshBasicMaterial({ 
+        color: color,
+        transparent: true,
+        opacity: 0.6
+    });
+    
+    const beam = new THREE.Mesh(beamGeometry, beamMaterial);
+    beam.position.set(x, height/2, z);
+    parentMesh.add(beam);
+    
+    // Add a small glow effect at the top and bottom
+    const glowGeometry = new THREE.SphereGeometry(0.3, 16, 8);
+    const glowMaterial = new THREE.MeshBasicMaterial({
+        color: color,
+        transparent: true,
+        opacity: 0.4
+    });
+    
+    const topGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+    topGlow.position.set(0, height/2, 0);
+    beam.add(topGlow);
+    
+    const bottomGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+    bottomGlow.position.set(0, -height/2, 0);
+    beam.add(bottomGlow);
+}
+
+          // Update your createTrackMeshes function to use this new checkpoint creator
+          function createTrackMeshes() {
+              // Clear any existing track meshes
+              trackMeshes.forEach(mesh => scene.remove(mesh));
+              checkpointMeshes.forEach(mesh => scene.remove(mesh));
+              trackMeshes = [];
+              checkpointMeshes = [];
+              
+              if (!currentTrack) {
+                  console.error("Cannot create track meshes - currentTrack is undefined");
+                  return;
+              }
+              
+              // Create boundaries
+              const wallMaterial = new THREE.MeshStandardMaterial({ 
+                  color: 0x444444,
+                  roughness: 0.7,
+                  metalness: 0.3
+              });
+              
+              currentTrack.boundaries.forEach(wall => {
+                  const wallGeometry = (wall.width > wall.depth) 
+                      ? new THREE.BoxGeometry(wall.width, wall.height, wall.depth)
+                      : new THREE.BoxGeometry(wall.width, wall.height, wall.depth);
+                  
+                  const wallMesh = new THREE.Mesh(wallGeometry, wallMaterial);
+                  wallMesh.position.set(wall.x, wall.height / 2, wall.z);
+                  wallMesh.castShadow = true;
+                  wallMesh.receiveShadow = true;
+                  
+                  scene.add(wallMesh);
+                  trackMeshes.push(wallMesh);
+                  
+                  // Add wall data to the mesh for collision detection
+                  wallMesh.userData = {
+                      isWall: true,
+                      width: wall.width,
+                      height: wall.height,
+                      depth: wall.depth
+                  };
+              });
+              
+              // Create checkpoints with the new function
+              checkpointMeshes = createCheckpoints(currentTrack);
+              
+              // Create track surface - racing area
+              const trackGeometry = new THREE.PlaneGeometry(120, 120);
+              const trackMaterial = new THREE.MeshStandardMaterial({ 
+                  color: 0x333366,
+                  roughness: 0.9,
+                  metalness: 0.1
+              });
+              const trackSurface = new THREE.Mesh(trackGeometry, trackMaterial);
+              trackSurface.rotation.x = -Math.PI / 2;
+              trackSurface.position.y = 0.01;
+              trackSurface.receiveShadow = true;
+              scene.add(trackSurface);
+              trackMeshes.push(trackSurface);
+          }            
             // Update ship display
             function updateShipDisplay() {
                 if (ships && ships.length > 0) {
