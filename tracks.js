@@ -2,17 +2,26 @@
 
 // Make the track data global so it can be accessed from the main script
 window.GAME_TRACKS = [
-    // Track 1: Simple Circuit - 2 long stretches and 4 90-degree turns
+    // Track 1: Circuit Alpha - simple track with updated checkpoint order
     {
         id: "circuit-alpha",
         name: "Circuit Alpha",
         description: "A simple circuit with 2 long stretches and 4 90-degree turns. Perfect for beginners.",
         difficulty: 1,
         checkpoints: [
-            { x: 0, z: 30, width: 10, height: 2, isStart: true },     // Start/finish line
-            { x: 0, z: -30, width: 10, height: 2 },                   // Top stretch
-            { x: 30, z: 0, width: 2, height: 10 },                    // Right turn
-            { x: -30, z: 0, width: 2, height: 10 }                    // Left turn
+            // Start/finish line at the bottom straight
+            { x: 0, z: 30, width: 30, height: 2, isStart: true },     // Checkpoint 0: Start/finish line
+            
+            // Proceed counter-clockwise around the track
+            { x: -20, z: 10, width: 2, height: 20 },                  // Checkpoint 1: After first left turn
+            { x: -20, z: -10, width: 2, height: 20 },                 // Checkpoint 2: Before second left turn
+            
+            // Top straight
+            { x: 0, z: -30, width: 30, height: 2 },                   // Checkpoint 3: Top straight
+            
+            // Right side checkpoints
+            { x: 20, z: -10, width: 2, height: 20 },                  // Checkpoint 4: After first right turn
+            { x: 20, z: 10, width: 2, height: 20 }                    // Checkpoint 5: Before final right turn back to start
         ],
         boundaries: [
             // Outer walls
@@ -30,60 +39,47 @@ window.GAME_TRACKS = [
         startPosition: { x: 0, y: 0.5, z: 25, rotation: 0 }
     },
     
-    // Track 2: Grand Circuit - Longer, more complex track with multiple turns
+    // Track 2: Grand Circuit - simplified to intermediate difficulty
     {
         id: "grand-circuit",
         name: "Grand Circuit",
-        description: "A challenging track with tight corners, chicanes, and long straights. Test your racing skills!",
-        difficulty: 3,
+        description: "An intermediate track with a mix of straight sections and moderate turns.",
+        difficulty: 2,
         checkpoints: [
-            { x: 0, z: 45, width: 10, height: 2, isStart: true },     // Start/finish line
-            { x: 0, z: 15, width: 10, height: 2 },                    // First straight checkpoint
-            { x: 25, z: -10, width: 2, height: 10 },                  // First right turn
-            { x: 50, z: -30, width: 10, height: 2 },                  // Second straight
-            { x: 75, z: -10, width: 2, height: 10 },                  // Second right turn
-            { x: 65, z: 20, width: 10, height: 2 },                   // Third straight
-            { x: 40, z: 30, width: 2, height: 10 },                   // Third right turn
-            { x: 20, z: 50, width: 10, height: 2 },                   // Fourth straight
-            { x: -15, z: 40, width: 2, height: 10 },                  // Left hairpin part 1
-            { x: -40, z: 20, width: 10, height: 2 },                  // Left hairpin part 2
-            { x: -60, z: 0, width: 2, height: 10 },                   // Left chicane
-            { x: -40, z: -20, width: 10, height: 2 },                 // Bottom left straight
-            { x: -20, z: -40, width: 2, height: 10 },                 // Bottom left turn
-            { x: 0, z: -20, width: 10, height: 2 }                    // Final stretch back to start
+            // Start/finish line on the bottom straight
+            { x: 0, z: 45, width: 30, height: 2, isStart: true },     // Checkpoint 0: Start/finish line
+            
+            // First section - gentle curve to the left
+            { x: -20, z: 30, width: 2, height: 20 },                  // Checkpoint 1: First left curve
+            
+            // Back straight - long straight section
+            { x: -45, z: 0, width: 2, height: 30 },                   // Checkpoint 2: Back straight
+            
+            // Top section - gentle S curve
+            { x: -20, z: -30, width: 2, height: 20 },                 // Checkpoint 3: Top left curve
+            { x: 0, z: -45, width: 30, height: 2 },                   // Checkpoint 4: Top section
+            
+            // Final section - right curves back to start
+            { x: 20, z: -30, width: 2, height: 20 },                  // Checkpoint 5: Top right curve
+            { x: 45, z: 0, width: 2, height: 30 },                    // Checkpoint 6: Right side straight
+            { x: 20, z: 30, width: 2, height: 20 }                    // Checkpoint 7: Final right curve
         ],
         boundaries: [
-            // Outer track boundaries - Main straights
-            { x: 0, z: 55, width: 100, height: 2, depth: 2 },         // Start/finish straight outer
-            { x: 85, z: -30, width: 10, height: 2, depth: 2 },        // Far right straight
-            { x: 20, z: 60, width: 10, height: 2, depth: 90 },        // Top straight
-            { x: -70, z: 0, width: 2, height: 2, depth: 80 },         // Far left straight
-            { x: -20, z: -50, width: 30, height: 2, depth: 2 },       // Bottom straight
+            // Outer walls
+            { x: 0, z: -55, width: 100, height: 2, depth: 2 },        // Top
+            { x: 55, z: 0, width: 2, height: 2, depth: 110 },         // Right
+            { x: 0, z: 55, width: 100, height: 2, depth: 2 },         // Bottom
+            { x: -55, z: 0, width: 2, height: 2, depth: 110 },        // Left
             
-            // Outer track boundaries - Curves
-            { x: 90, z: -15, width: 2, height: 2, depth: 30 },        // Top right corner outer
-            { x: 75, z: 40, width: 30, height: 2, depth: 2 },         // Right top corner outer
-            { x: 40, z: 50, width: 2, height: 2, depth: 20 },         // Top right corner outer
-            { x: -15, z: 50, width: 70, height: 2, depth: 2 },        // Top left corner outer
-            { x: -60, z: 30, width: 2, height: 2, depth: 40 },        // Top left curve outer
-            { x: -50, z: -30, width: 40, height: 2, depth: 2 },       // Bottom left curve outer
-            { x: -20, z: -20, width: 2, height: 2, depth: 60 },       // Bottom left to center curve
-            
-            // Inner track boundaries
-            { x: 0, z: 35, width: 60, height: 2, depth: 2 },          // Start/finish straight inner
-            { x: 40, z: -10, width: 2, height: 2, depth: 90 },        // Right side inner wall 1
-            { x: 65, z: -20, width: 50, height: 2, depth: 2 },        // Far right inner wall
-            { x: 55, z: 10, width: 40, height: 2, depth: 2 },         // Top right inner wall
-            { x: 30, z: 40, width: 2, height: 2, depth: 60 },         // Top curve inner wall
-            { x: 0, z: 40, width: 50, height: 2, depth: 2 },          // Top middle inner wall
-            { x: -30, z: 30, width: 2, height: 2, depth: 20 },        // Left top curve inner
-            { x: -50, z: 10, width: 40, height: 2, depth: 2 },        // Left middle inner
-            { x: -50, z: -10, width: 2, height: 2, depth: 40 },       // Left bottom inner
-            { x: -30, z: -30, width: 40, height: 2, depth: 2 },       // Bottom left inner
-            { x: -10, z: -10, width: 2, height: 2, depth: 40 },       // Bottom to center inner
-            
-            // Chicane/obstacle elements
-            { x: 15, z: 0, width: 10, height: 2, depth: 10 }          // Center obstacle
+            // Inner oval
+            { x: -25, z: -25, width: 2, height: 2, depth: 40 },       // Top-left curve
+            { x: 0, z: -35, width: 50, height: 2, depth: 2 },         // Top inner
+            { x: 25, z: -25, width: 2, height: 2, depth: 40 },        // Top-right curve
+            { x: 35, z: 0, width: 2, height: 2, depth: 50 },          // Right inner
+            { x: 25, z: 25, width: 2, height: 2, depth: 40 },         // Bottom-right curve
+            { x: 0, z: 35, width: 50, height: 2, depth: 2 },          // Bottom inner
+            { x: -25, z: 25, width: 2, height: 2, depth: 40 },        // Bottom-left curve
+            { x: -35, z: 0, width: 2, height: 2, depth: 50 }          // Left inner
         ],
         startPosition: { x: 0, y: 0.5, z: 40, rotation: 0 }
     }
