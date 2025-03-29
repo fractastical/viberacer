@@ -247,70 +247,72 @@
             
             // Create a ship mesh based on the selected ship
             function createShipMesh(shipData) {
-                const group = new THREE.Group();
-                
-                // Create the ship body
-                const bodyGeometry = new THREE.BoxGeometry(shipData.width, shipData.height, shipData.length);
-                const bodyMaterial = new THREE.MeshStandardMaterial({ 
-                    color: shipData.color,
-                    roughness: 0.3,
-                    metalness: 0.7
-                });
-                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-                body.castShadow = true;
-                body.receiveShadow = true;
-                group.add(body);
-                
-                // Add wings
-                const wingGeometry = new THREE.BoxGeometry(shipData.width * 1.2, shipData.height * 0.4, shipData.length * 0.4);
-                const wingMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x333333,
-                    roughness: 0.5,
-                    metalness: 0.5
-                });
-                
-                const leftWing = new THREE.Mesh(wingGeometry, wingMaterial);
-                leftWing.position.set(-shipData.width * 0.7, 0, 0);
-                leftWing.castShadow = true;
-                group.add(leftWing);
-                
-                const rightWing = new THREE.Mesh(wingGeometry, wingMaterial);
-                rightWing.position.set(shipData.width * 0.7, 0, 0);
-                rightWing.castShadow = true;
-                group.add(rightWing);
-                
-                // Add cockpit
-                const cockpitGeometry = new THREE.SphereGeometry(shipData.width * 0.3, 16, 12);
-                const cockpitMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x88ccff,
-                    roughness: 0.1,
-                    metalness: 0.9,
-                    transparent: true,
-                    opacity: 0.7
-                });
-                const cockpit = new THREE.Mesh(cockpitGeometry, cockpitMaterial);
-                cockpit.position.set(0, shipData.height * 0.5, -shipData.length * 0.2);
-                group.add(cockpit);
-                
-                // Add engine glow
-                const engineGeometry = new THREE.CylinderGeometry(shipData.width * 0.2, shipData.width * 0.3, 0.5, 16);
-                const engineMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff });
-                const engine1 = new THREE.Mesh(engineGeometry, engineMaterial);
-                engine1.position.set(-shipData.width * 0.3, 0, shipData.length * 0.4);
-                engine1.rotation.x = Math.PI / 2;
-                group.add(engine1);
-                
-                const engine2 = new THREE.Mesh(engineGeometry, engineMaterial);
-                engine2.position.set(shipData.width * 0.3, 0, shipData.length * 0.4);
-                engine2.rotation.x = Math.PI / 2;
-                group.add(engine2);
-                
-                // Position group pivot at the center of the ship
-                group.position.set(0, 0, 0);
-                
-                return group;
-            }
-            
+              // If the ship has a custom render function, use it
+              if (typeof shipData.renderFunction === 'function') {
+                  return shipData.renderFunction(THREE);
+              }
+              
+              // Fallback to default ship rendering if no custom function exists
+              const group = new THREE.Group();
+              
+              // Create the ship body
+              const bodyGeometry = new THREE.BoxGeometry(shipData.width, shipData.height, shipData.length);
+              const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                  color: shipData.color,
+                  roughness: 0.3,
+                  metalness: 0.7
+              });
+              const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+              body.castShadow = true;
+              body.receiveShadow = true;
+              group.add(body);
+              
+              // Add wings
+              const wingGeometry = new THREE.BoxGeometry(shipData.width * 1.2, shipData.height * 0.4, shipData.length * 0.4);
+              const wingMaterial = new THREE.MeshStandardMaterial({ 
+                  color: 0x333333,
+                  roughness: 0.5,
+                  metalness: 0.5
+              });
+              
+              const leftWing = new THREE.Mesh(wingGeometry, wingMaterial);
+              leftWing.position.set(-shipData.width * 0.7, 0, 0);
+              leftWing.castShadow = true;
+              group.add(leftWing);
+              
+              const rightWing = new THREE.Mesh(wingGeometry, wingMaterial);
+              rightWing.position.set(shipData.width * 0.7, 0, 0);
+              rightWing.castShadow = true;
+              group.add(rightWing);
+              
+              // Add cockpit
+              const cockpitGeometry = new THREE.SphereGeometry(shipData.width * 0.3, 16, 12);
+              const cockpitMaterial = new THREE.MeshStandardMaterial({ 
+                  color: 0x88ccff,
+                  roughness: 0.1,
+                  metalness: 0.9,
+                  transparent: true,
+                  opacity: 0.7
+              });
+              const cockpit = new THREE.Mesh(cockpitGeometry, cockpitMaterial);
+              cockpit.position.set(0, shipData.height * 0.5, -shipData.length * 0.2);
+              group.add(cockpit);
+              
+              // Add engine glow
+              const engineGeometry = new THREE.CylinderGeometry(shipData.width * 0.2, shipData.width * 0.3, 0.5, 16);
+              const engineMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+              const engine1 = new THREE.Mesh(engineGeometry, engineMaterial);
+              engine1.position.set(-shipData.width * 0.3, 0, shipData.length * 0.4);
+              engine1.rotation.x = Math.PI / 2;
+              group.add(engine1);
+              
+              const engine2 = new THREE.Mesh(engineGeometry, engineMaterial);
+              engine2.position.set(shipData.width * 0.3, 0, shipData.length * 0.4);
+              engine2.rotation.x = Math.PI / 2;
+              group.add(engine2);
+              
+              return group;
+            }            
             // Load tracks from tracks.js
             function loadTracks() {
                 // Make sure GAME_TRACKS exists in window
