@@ -1,7 +1,7 @@
-// Game tracks data file
+// Track data for the racing game
 
-// Track collection for the racing game
-const GAME_TRACKS = [
+// Make the track data global so it can be accessed from the main script
+window.GAME_TRACKS = [
     // Track 1: Simple Circuit - 2 long stretches and 4 90-degree turns
     {
         id: "circuit-alpha",
@@ -89,15 +89,11 @@ const GAME_TRACKS = [
     }
 ];
 
-// Function to get track by ID
-function getTrackById(trackId) {
-    return GAME_TRACKS.find(track => track.id === trackId);
-}
+// Also add helper functions to the global scope
+window.getAllTracks = function() {
+    return window.GAME_TRACKS;
+};
 
-// Function to get all available tracks
-function getAllTracks() {
-    return GAME_TRACKS;
-}
-
-// Export the track functions
-export { getTrackById, getAllTracks };
+window.getTrackById = function(trackId) {
+    return window.GAME_TRACKS.find(track => track.id === trackId);
+};

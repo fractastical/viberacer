@@ -1,7 +1,7 @@
-// Game ships data file
+// Ship data for the racing game
 
-// Ship collection for the racing game
-const GAME_SHIPS = [
+// Make the ship data global so it can be accessed from the main script
+window.GAME_SHIPS = [
     {
         id: "speeder",
         name: "Speeder", 
@@ -64,15 +64,11 @@ const GAME_SHIPS = [
     }
 ];
 
-// Function to get ship by ID
-function getShipById(shipId) {
-    return GAME_SHIPS.find(ship => ship.id === shipId);
-}
+// Also add helper functions to the global scope
+window.getAllShips = function() {
+    return window.GAME_SHIPS;
+};
 
-// Function to get all available ships
-function getAllShips() {
-    return GAME_SHIPS;
-}
-
-// Export the ship functions
-export { getShipById, getAllShips };
+window.getShipById = function(shipId) {
+    return window.GAME_SHIPS.find(ship => ship.id === shipId);
+};
