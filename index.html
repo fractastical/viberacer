@@ -78,8 +78,15 @@
             margin-top: 5px;
         }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="firebase-integration.js"></script>
+
+
 </head>
 <body>
+
     <div id="gameContainer">
         <div id="hud">
             <div>Lap: <span id="currentLap">1</span>/3</div>
@@ -529,6 +536,7 @@
                 renderer.render(scene, camera);
             }
             
+
             // Update ship position and rotation
             function updateShip() {
                 // Apply acceleration/deceleration
@@ -671,19 +679,29 @@
             }
             
             // End the game after completing all laps
-            function endGame() {
-                gameOver = true;
-                
-                // Calculate total time
-                const totalTime = lapTimes.reduce((sum, time) => sum + time, 0);
-                
-                // Update final UI
-                document.getElementById('finalBestTime').textContent = bestLapTime.toFixed(2);
-                document.getElementById('finalTotalTime').textContent = totalTime.toFixed(2);
-                
-                // Show game over screen
-                document.getElementById('gameOver').style.display = 'block';
-            }
+              function endGame() {
+                  gameOver = true;
+                  
+                  // Calculate total time
+                  const totalTime = lapTimes.reduce((sum, time) => sum + time, 0);
+                  
+                  // Update final UI
+                  document.getElementById('finalBestTime').textContent = bestLapTime.toFixed(2);
+                  document.getElementById('finalTotalTime').textContent = totalTime.toFixed(2);
+                  
+                  // Show game over screen
+                  document.getElementById('gameOver').style.display = 'block';
+                  
+                  // Get the selected ship ID
+                  const selectedShipId = ships[shipIndex].id;
+                  
+                  // Save race results to Firebase
+                  window.RaceFirebase.saveRaceResults(
+                      currentTrack.id,  // e.g., 'circuit-alpha'
+                      lapTimes,         // Array of lap times in seconds [45.231, 44.108, 43.976]
+                      selectedShipId    // e.g., 'speeder'
+                  );
+              }
             
             // Update timer
             function updateTimer() {
@@ -745,6 +763,13 @@
                 }
             }
         }); // End of DOMContentLoaded event handler
+
+        window.resetGame = function() {
+          window.RaceFirebase.closeRaceResultsModal();
+          // Your game reset logic here
+          restartGame();
+        };
+
     </script>
 </body>
 </html>
